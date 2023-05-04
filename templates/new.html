@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.0/socket.io.min.js"></script>
+</head>
+<h1>THIS IS A WEBPAGE</h1>
+
+<body>
+</body>
+<script>
+    const socket = io("http://127.0.0.1:5000/");
+    socket.connect(); // connect to the socket
+
+    socket.on('connect', function () {
+        console.log("connection found")
+        // once connected, send a socket back to python
+        socket.emit('my event', {
+            data: 'User Connected'
+        });
+    });
+
+    var eventSource = new EventSource('/get_text');
+    eventSource.onmessage = function (event) {
+        console.log(event.data);
+    }
+
+
+    socket.on('my response', function (msg) {
+        console.log("my response: ", msg)
+    })
+
+    socket.on('message', function (message) {
+        console.log('Received message:', message);
+    });
+</script>
+
+</html>
