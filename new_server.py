@@ -2,6 +2,7 @@ import threading
 import time
 from flask_socketio import SocketIO
 from flask import Flask, render_template, request, current_app, Response
+import assistant_new as am
 
 
 app = Flask(__name__)
@@ -20,21 +21,22 @@ def index():
 @socketio.on('my event')
 def handle_my_custom_event(text, methods=['GET', 'POST']):
     print('received my event: ' + str(text))
+    am.getCommand(str(text))
 
 
-# Function to start Flask app
+# start Flask app
 def start_flask_app():
-    socketio.run(app)
+    socketio.run(app ,)
 
 
-# Function to send text data to clients
+# send text data to clients
 def send_text(text):
     if text:
         socketio.emit('message', text)
         print("sent data : ", text)
 
 
-# API endpoint for SR script to call and send text data
+# route : send text data
 @app.route('/send_text', methods=['POST'])
 def api_send_text():
     text_data = request.form['text_data']
@@ -47,21 +49,18 @@ def api_send_text():
 def get_text():
     def generate_text():
         while True:
-            # generate or fetch the text data here
             text_data = ''
             yield f'data: {text_data}\n\n'
 
     return Response(generate_text(), mimetype='text/event-stream')
 
 def start_assistant():
-    import assistant_main as am
     am.launch_assistant()
 
 def background():
     time.sleep(2)
     for i in range(5):
         time.sleep(2)
-        # send some text data to clients
         send_text(f'This is text data {i}')
 
 
